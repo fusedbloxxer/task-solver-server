@@ -23,7 +23,7 @@ func (tasksApi *TasksAPI) SolveTask(c *gin.Context) {
 	var task dto.TaskRequest
 
 	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Errorf("invalid model: %w", err).Error(),
 		})
 		return
@@ -37,14 +37,14 @@ func (tasksApi *TasksAPI) SolveTask(c *gin.Context) {
 		Answer:  answer,
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.IndentedJSON(http.StatusOK, res)
 }
 
 func (tasksApi *TasksAPI) SaveTask(c *gin.Context) {
 	var task dto.TaskResponse
 
 	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Errorf("invalid model: %w", err).Error(),
 		})
 		return
@@ -57,7 +57,7 @@ func (tasksApi *TasksAPI) SaveTask(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Errorf("could not save the task.go: %w", err).Error(),
 		})
 		return
@@ -65,23 +65,23 @@ func (tasksApi *TasksAPI) SaveTask(c *gin.Context) {
 
 	tasks, err := tasksApi.UnitOfWork.TaskRepository.GetTasks()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Errorf("could retrieve the tasks: %w", err).Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, tasks)
+	c.IndentedJSON(http.StatusOK, tasks)
 }
 
 func (tasksApi *TasksAPI) GetTasks(c *gin.Context) {
 	tasks, err := tasksApi.UnitOfWork.TaskRepository.GetTasks()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Errorf("could retrieve the tasks: %w", err).Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, tasks)
+	c.IndentedJSON(http.StatusOK, tasks)
 }
