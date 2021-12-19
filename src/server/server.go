@@ -88,9 +88,13 @@ func (s *Server) addRoutes() error {
 
 			taskGroup := v1.Group("/tasks")
 			{
-				taskGroup.GET("/", tasksHandler.GetTasks)
-				taskGroup.POST("/", tasksHandler.SaveTask)
-				taskGroup.GET("/solve", tasksHandler.SolveTask)
+				taskGroup.POST("/solve", tasksHandler.SolveTask)
+
+				taskGroup.GET("/", tasksHandler.GetAllTaskResults)
+				taskGroup.GET("/:taskId", tasksHandler.GetTaskResultById)
+
+				taskGroup.DELETE("/", tasksHandler.DeleteAllTaskResults)
+				taskGroup.DELETE("/:taskId", tasksHandler.DeleteTaskResult)
 			}
 		}
 	}
