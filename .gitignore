@@ -5,7 +5,10 @@
 *.so
 *.dylib
 *.idea/
+
+# Exclude folders
 /bin/
+/secrets/
 
 # Test binary, built with `go test -c`
 *.test

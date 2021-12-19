@@ -5,14 +5,24 @@ import (
 	"github.com/spf13/viper"
 )
 
-type HostSettings struct {
+type KeySecret struct {
+	Key    string `mapstructure:"key"`
+	Secret string `mapstructure:"secret"`
+}
+
+type Host struct {
 	Address string `mapstructure:"address"`
 	Port    string `mapstructure:"port"`
 }
 
+type Server struct {
+	Host Host `mapstructure:"host"`
+}
+
 type AppSettings struct {
-	HostSettings HostSettings `mapstructure:"host"`
-	Environment  string       `mapstructure:"env"`
+	Environment string                 `mapstructure:"env"`
+	Server      Server                 `mapstructure:"server"`
+	Services    map[string]interface{} `mapstructure:"services"`
 }
 
 func LoadConfig() (settings *AppSettings, err error) {
@@ -50,6 +60,6 @@ func LoadConfig() (settings *AppSettings, err error) {
 	return
 }
 
-func (h *HostSettings) GetHost() string {
+func (h *Host) GetHost() string {
 	return fmt.Sprintf("%s:%s", h.Address, h.Port)
 }
