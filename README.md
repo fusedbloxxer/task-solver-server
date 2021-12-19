@@ -32,6 +32,10 @@ docker build --tag initial-version -f ./docker/Dockerfile . -t invokariman/task-
 # View the local images
 docker image ls
 
+# TODO:
+# Find a way to pass the Google Service Account Credentials to the running container
+# Without compromising security
+
 # Run the image as a container, in background, to test it
 docker run -d --name task-solver-server --env TASK_SOLVER_ENV=dev -p 127.0.0.1:8080:8080 invokariman/task-solver-server
 
