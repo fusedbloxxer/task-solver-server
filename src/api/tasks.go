@@ -15,6 +15,8 @@ type ITasksAPI interface {
 
 	GetAllTaskResults(ctx *gin.Context)
 
+	GetAllTaskIndexes(ctx *gin.Context)
+
 	DeleteTaskResult(ctx *gin.Context)
 
 	SolveTask(ctx *gin.Context)
@@ -58,6 +60,17 @@ func (tasksApi *TasksAPI) GetAllTaskResults(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, tasks)
+}
+
+func (tasksApi *TasksAPI) GetAllTaskIndexes(c *gin.Context) {
+	indexes, err := tasksApi.UnitOfWork.TaskRepository.GetAllTaskIndexes()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("could retrieve the indexes: %w", err).Error(),
+		})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, indexes)
 }
 
 func (tasksApi *TasksAPI) DeleteTaskResult(c *gin.Context) {

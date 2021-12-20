@@ -91,6 +91,7 @@ func (s *Server) addRoutes() error {
 				taskGroup.POST("/solve", tasksHandler.SolveTask)
 
 				taskGroup.GET("/", tasksHandler.GetAllTaskResults)
+				taskGroup.GET("/indexes", tasksHandler.GetAllTaskIndexes)
 				taskGroup.GET("/:taskId", tasksHandler.GetTaskResultById)
 
 				taskGroup.DELETE("/", tasksHandler.DeleteAllTaskResults)

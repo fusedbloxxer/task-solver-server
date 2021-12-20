@@ -16,6 +16,8 @@ type ITaskRepository interface {
 
 	GetAllTaskResults() ([]model.TaskResult, error)
 
+	GetAllTaskIndexes() ([]int64, error)
+
 	SaveTaskResult(task *model.TaskResult) error
 
 	DeleteTaskResult(id string) error
@@ -86,6 +88,28 @@ func (ftr *FirebaseTaskRepository) GetAllTaskResults() ([]model.TaskResult, erro
 	}
 
 	return tasks, nil
+}
+
+func (ftr *FirebaseTaskRepository) GetAllTaskIndexes() ([]int64, error) {
+	indexes := make([]int64, 0)
+
+	iter := ftr.App.Firestore.Collection("indexes").Documents(*ftr.App.Context)
+
+	for {
+		doc, err := iter.Next()
+
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("could not retrieve all indexes: %w", err)
+		}
+
+		indexes = append(indexes, doc.Data()["index"].(int64))
+	}
+
+	return indexes, nil
 }
 
 func (ftr *FirebaseTaskRepository) SaveTaskResult(task *model.TaskResult) (err error) {
