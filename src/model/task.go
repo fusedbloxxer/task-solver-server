@@ -2,7 +2,7 @@ package model
 
 type Task struct {
 	Context [][]string `json:"context" binding:"required"`
-	Index   int64      `json:"index" binding:"required,min=1,max=2"`
+	Index   int64      `json:"index" binding:"required"`
 }
 
 type TaskResult struct {

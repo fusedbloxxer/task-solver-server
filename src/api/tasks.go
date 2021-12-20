@@ -93,6 +93,32 @@ func (tasksApi *TasksAPI) SolveTask(c *gin.Context) {
 		return
 	}
 
+	// Fetch current available problems
+	indexes, err := tasksApi.UnitOfWork.TaskRepository.GetAllTaskIndexes()
+
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("could not retrieve all task indexes: %w", err).Error(),
+		})
+		return
+	}
+
+	// Validate task index
+	exists := false
+	for _, index := range indexes {
+		if index == task.Index {
+			exists = true
+			break
+		}
+	}
+
+	if !exists {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("invalid index: %v", task.Index),
+		})
+		return
+	}
+
 	// Solve the problem and return the answer
 	answer := tasksApi.UnitOfWork.TaskSolver.Solve(task)
 
@@ -104,7 +130,7 @@ func (tasksApi *TasksAPI) SolveTask(c *gin.Context) {
 	}
 
 	// Save the solved task
-	err := tasksApi.UnitOfWork.TaskRepository.SaveTaskResult(&taskResult)
+	err = tasksApi.UnitOfWork.TaskRepository.SaveTaskResult(&taskResult)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
