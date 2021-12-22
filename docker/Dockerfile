@@ -15,15 +15,23 @@ COPY go.sum ./
 
 # Download the dependencies
 RUN go mod download
-
-# Copy the source code
-COPY ./src/ ./src/
+RUN go get -u github.com/swaggo/swag/cmd/swag
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 # Copy the environment file
 COPY ./env/ ./env/
 
+# !WARNING! Copy the firebase credentials !WARNING!
+COPY ./secrets/ ./secrets/
+
+# Copy the source code
+COPY ./src/ ./src/
+
 # Expose the 8080 port
 EXPOSE 8080
+
+# Generate Swagger / openAPI docs
+RUN swag init --dir ./src
 
 # Compile the application
 RUN go build -o ./bin/server ./src

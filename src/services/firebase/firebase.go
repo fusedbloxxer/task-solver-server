@@ -40,7 +40,7 @@ func Create(settings map[string]interface{}) (app *Firebase, err error) {
 
 	app.Firestore, err = app.App.Firestore(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could read the firebase settings: %w", err)
+		return nil, fmt.Errorf("could not use the firebase credentials to authenticate: %w", err)
 	}
 
 	return app, nil
