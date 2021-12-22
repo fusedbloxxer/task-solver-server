@@ -8,10 +8,14 @@ In the **env** folder you can add multiple configurations and edit them to suit 
 
 By default the development environment (**dev**) is chosen.
 
+You have to first install the [Go Language](https://go.dev/dl/) on your system. I used the
+**1.17.3** version for windows to develop the server application.
+
 ```bash
-# Install Swagger / OpenAPI dependencies
-RUN go get -u github.com/swaggo/swag/cmd/swag
-RUN go install github.com/swaggo/swag/cmd/swag@latest
+# Install dependencies
+go mod download
+go get -u github.com/swaggo/swag/cmd/swag
+go install github.com/swaggo/swag/cmd/swag@latest
 
 # Set the environment for the server
 export TASK_SOLVER_ENV=dev
