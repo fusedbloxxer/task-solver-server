@@ -10,3 +10,7 @@ type TaskResult struct {
 	Task   Task    `json:"task" binding:"required"`
 	Answer float64 `json:"answer" binding:"required"`
 }
+
+type BadRequestError struct {
+	Error string
+}

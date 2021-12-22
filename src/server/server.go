@@ -2,9 +2,10 @@ package server
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"net/http"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"sync"
+	"task-solver/server/docs"
 	endpoints "task-solver/server/src/api"
 	"task-solver/server/src/dal"
 	"task-solver/server/src/dal/repository"
@@ -64,19 +65,25 @@ func (s *Server) Initialize() (err error) {
 }
 
 func (s *Server) addRoutes() error {
+
 	api := s.Router.Engine.Group("/api")
 	{
 		v1 := api.Group("/v1")
 		{
-			v1.GET("/hello-world", func(c *gin.Context) {
-				c.String(http.StatusOK, "Hello, world!")
-			})
+			// Add basic test endpoint
+			testHandler := endpoints.TestAPI{}
+			v1.GET("/test", testHandler.Test)
 
-			v1.GET("/config", func(c *gin.Context) {
-				c.IndentedJSON(http.StatusOK, s.Settings)
-			})
+			// Add configuration endpoint
+			configHandler := endpoints.ConfigAPI{}
+			v1.GET("/config", configHandler.GetConfig)
 
-			taskSolver := &tasks.MapReduceSolver{}
+			// Create services and inject dependencies
+			taskSolver, err := tasks.CreateMapReduceSolver(s.Settings.Services)
+			if err != nil {
+				return fmt.Errorf("could not create taskSolver service: %w", err)
+			}
+
 			taskRepository, err := repository.Create(s.Settings.Services)
 			if err != nil {
 				return fmt.Errorf("could not create repository: %w", err)
@@ -100,6 +107,9 @@ func (s *Server) addRoutes() error {
 		}
 	}
 
+	// Add Swagger / OpenAPI
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	s.Router.Engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return nil
 }
 

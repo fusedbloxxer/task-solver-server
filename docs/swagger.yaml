@@ -1,0 +1,210 @@
+basePath: /api/v1
+definitions:
+  model.BadRequestError:
+    properties:
+      error:
+        type: string
+    type: object
+  model.Task:
+    properties:
+      context:
+        items:
+          items:
+            type: string
+          type: array
+        type: array
+      index:
+        type: integer
+    required:
+    - context
+    - index
+    type: object
+  model.TaskResult:
+    properties:
+      answer:
+        type: number
+      id:
+        type: string
+      task:
+        $ref: '#/definitions/model.Task'
+    required:
+    - answer
+    - id
+    - task
+    type: object
+host: 127.0.0.1:8080
+info:
+  contact:
+    url: https://github.com/fusedbloxxer
+  description: This API can be used to solve tasks and save the results to firebase
+  title: Tasks API
+  version: "1.0"
+paths:
+  /config:
+    get:
+      consumes:
+      - application/json
+      description: Gets the app settings for the environment the server is running
+        in.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The configuration file is returned.
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get the full configuration file for the server.
+      tags:
+      - config
+  /tasks:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the task results from the server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All tasks are deleted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.BadRequestError'
+      summary: Delete all stored task results
+      tags:
+      - task
+    get:
+      consumes:
+      - application/json
+      description: Fetch all the stored task results from the server. They are unordered
+        and unfiltered.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All task results are returned as an array
+          schema:
+            items:
+              $ref: '#/definitions/model.TaskResult'
+            type: array
+        "500":
+          description: Failed to fetch the tasks
+          schema:
+            $ref: '#/definitions/model.BadRequestError'
+      summary: Retrieve all stored task results
+      tags:
+      - task
+  /tasks/:taskId:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a saved task result using the id.
+      parameters:
+      - description: Used to identify the task
+        in: query
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The task is removed
+        "400":
+          description: The taskId does not exist
+          schema:
+            $ref: '#/definitions/model.BadRequestError'
+      summary: Delete a task result using its id
+      tags:
+      - task
+    get:
+      consumes:
+      - application/json
+      description: Fetch the saved result from the server.
+      parameters:
+      - description: Used to identify the task
+        in: query
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The task result is returned
+          schema:
+            $ref: '#/definitions/model.TaskResult'
+        "400":
+          description: The task does not exist
+          schema:
+            $ref: '#/definitions/model.BadRequestError'
+      summary: Get a saved task result by its document id
+      tags:
+      - task
+  /tasks/indexes:
+    get:
+      consumes:
+      - application/json
+      description: Fetch from the server the possible problem types implemented.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The problem indexes are returned as an array. It is unordered.
+          schema:
+            items:
+              type: integer
+            type: array
+        "500":
+          description: Failed to fetch the problem indexes.
+          schema:
+            $ref: '#/definitions/model.BadRequestError'
+      summary: Retrieve the possible problem types or indexes
+      tags:
+      - task
+  /tasks/solve:
+    post:
+      consumes:
+      - application/json
+      description: Solve a task by using the context and the index of the problem.
+        Save the results.
+      parameters:
+      - description: The task to be solved. Its index must be obtained from /tasks/indexes.
+        in: body
+        name: Task
+        required: true
+        schema:
+          $ref: '#/definitions/model.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The task result containing an id for the saved value and the
+            answer
+          schema:
+            $ref: '#/definitions/model.TaskResult'
+        "400":
+          description: The task model is invalid
+          schema:
+            $ref: '#/definitions/model.BadRequestError'
+      summary: Solve a task and save the result
+      tags:
+      - task
+  /test:
+    get:
+      consumes:
+      - application/json
+      description: Tests if the API is working. A "Hello, World!" message should always
+        be returned.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The message "Hello, World!" is returned
+          schema:
+            type: string
+      summary: Test that the API is responding
+      tags:
+      - test
+swagger: "2.0"
