@@ -3,8 +3,10 @@ package tasks
 import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/viper"
 	"task-solver/server/src/model"
 	"task-solver/server/src/services/tasks/functional"
+	"unicode"
 )
 
 type ITaskSolver interface {
@@ -44,6 +46,10 @@ func CreateMapReduceSolver(settings map[string]interface{}) (ITaskSolver, error)
 	mrs.IndexMapper = map[int64]func([][]string) float64{
 		1: mrs.solveFirstTask,
 		2: mrs.solveSecondTask,
+		3: mrs.solveThirdTask,
+		4: mrs.solveFourthTask,
+		5: mrs.solveFifthTask,
+		6: mrs.solveSixthTask,
 	}
 
 	return mrs, nil
@@ -66,6 +72,48 @@ func (mrs *MapReduceSolver) Solve(task model.Task) (float64, error) {
 //http://127.0.0.1:8080/api/v1/tasks/solve
 
 func (mrs *MapReduceSolver) solveFirstTask(context [][]string) float64 {
+	return mrs.solve(context, func(message string) bool {
+		vowels, consonants, _ := CountCharTypes(message)
+		return vowels%2 == 0 && consonants%3 == 0 && len(message) != 0
+	})
+}
+
+func (mrs *MapReduceSolver) solveSecondTask(context [][]string) float64 {
+	return mrs.solve(context, IsPalindrome)
+}
+
+func (mrs *MapReduceSolver) solveThirdTask(context [][]string) float64 {
+	return mrs.solve(context, IsBirdLanguage)
+}
+
+func (mrs *MapReduceSolver) solveFourthTask(context [][]string) float64 {
+	return mrs.solve(context, IsVowelSymmetric)
+}
+
+func (mrs *MapReduceSolver) solveFifthTask(context [][]string) float64 {
+	return mrs.solve(context, func(s string) bool {
+		return IsAnagramTo(s, "facultate")
+	})
+}
+
+func (mrs *MapReduceSolver) solveSixthTask(context [][]string) float64 {
+	return mrs.solve(context, func(s string) bool {
+		if len(s) == 0 || !unicode.IsUpper(rune(s[0])) {
+			return false
+		}
+
+		lowercase := 0
+		for _, c := range s {
+			if unicode.IsLower(c) {
+				lowercase++
+			}
+		}
+
+		return lowercase%2 == 0
+	})
+}
+
+func (mrs *MapReduceSolver) solve(context [][]string, condition func(string) bool) float64 {
 	// Use a communication channel to process data
 	input := make(chan interface{}, mrs.Settings.ChannelSize)
 
@@ -89,9 +137,13 @@ func (mrs *MapReduceSolver) solveFirstTask(context [][]string) float64 {
 
 			_ = mapstructure.Decode(x, &entry)
 
-			vowels, consonants, _ := CountCharTypes(entry)
+			condition := condition(entry)
 
-			return vowels%2 == 0 && consonants%3 == 0 && len(entry) != 0
+			if condition && viper.GetString("env") == "dev" {
+				fmt.Println(entry)
+			}
+
+			return condition
 		}),
 		functional.CreateMapper(func(x interface{}) interface{} {
 			return 1.0
@@ -122,8 +174,4 @@ func (mrs *MapReduceSolver) solveFirstTask(context [][]string) float64 {
 
 	// Return the data as float
 	return res.(float64)
-}
-
-func (mrs *MapReduceSolver) solveSecondTask(context [][]string) float64 {
-	return 2.0
 }
