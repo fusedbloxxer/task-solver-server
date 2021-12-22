@@ -33,7 +33,9 @@ go build -o ./bin/server ./src
 ```
 
 You should now be able to access the API using your custom settings, 
-or by default at http://127.0.0.1:8080/swagger/index.html.
+or by default at:
+
+http://127.0.0.1:8080/swagger/index.html
 
 ---
 
